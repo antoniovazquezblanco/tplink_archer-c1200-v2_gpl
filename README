@@ -1,0 +1,9 @@
+TP-LINK GPL code readme
+ 
+1. This package contains all GPL code used by TP-LINK Archer C1200 Router.
+2. All components have been built successfully on Red Hat Enterprise linux Server 6.0. 
+3. After building the code, you will get linux kernel and filesystem.  
+
+Build Instructions 
+1. Issue the following command: 
+   ./build.sh

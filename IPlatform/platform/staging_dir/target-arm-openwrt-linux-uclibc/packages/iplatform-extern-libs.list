@@ -1,0 +1,7 @@
+./
+./usr
+./usr/include
+./usr/include/ifaddrs.h
+./usr/lib
+./usr/lib/libifaddrs.so
+./host

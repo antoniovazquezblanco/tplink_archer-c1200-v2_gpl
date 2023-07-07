@@ -1,0 +1,259 @@
+#!/bin/sh
+# when the connect is on/off, rmmod/insmod wportal to remind the user
+
+local wds_enable
+wds_enable="no"
+#废弃
+wportalctrl_insert_wan_error_mac_forever(){
+	local id=$1
+	local type
+	config_get MAC $id mac ""
+	config_get type $id TYPE ""
+	if [ $type == "wan_error_device" ] ;
+	then
+		wportalctrl -a $MAC
+	fi
+}
+
+is_wds_enable(){
+	local id=$1
+	
+	local mode
+	local enable
+	
+	config_get mode $id mode "ap"
+	config_get enable $id enable "off"
+	
+	if [ $mode == "sta" -a $enable == "on" ] ;
+	then
+		wds_enable="yes";
+	fi
+}
+
+mark_wan_error(){
+    echo "wan_error" > /tmp/wportal/status
+}
+
+#检测到wan口异常，准备加载wan_error或者init，
+wportalctrl_init_wan_error(){
+	local if_account_exist
+	local ip
+	config_load network
+	config_get ip lan ipaddr ""
+	
+#	local defcfg
+#	config_load wportal
+#	config_get defcfg defcfg defcfg "no"
+
+	. /lib/wportal/wportal.sh
+	is_account_exist
+	if_account_exist=$?
+	
+	if [ $if_account_exist == "0" ] ;
+	then
+		#出厂状态，加载init
+		wportalctrl -s -u http://$ip/webpages/init.html -i $ip
+		cat /tmp/wportal/status | grep -E "(init)"
+		if [ $? -eq 0 ] ;
+		then
+			return
+		fi
+		wportalctrl -c
+		config_load network
+		config_get ip lan ipaddr ""
+		local domain
+		config_load domain_login
+		config_get domain tp_domain domain ""
+		local lan_ip_addr
+		config_load network
+		config_get lan_ip_addr lan ipaddr $domain
+		wportalctrl -s -u http://$lan_ip_addr/webpages/init.html -i $ip
+		wportalctrl -D -Y
+		
+		local lan_mask
+		config_get lan_mask lan netmask "255.255.255.0"
+		wportalctrl -m $lan_mask
+		
+		echo "init" > /tmp/wportal/status
+	else
+		#wan口异常，加载wan_error
+		#wds下不启动拦截
+		config_clear
+		config_load wireless 
+		config_foreach is_wds_enable
+		
+		if [ $wds_enable == "yes" ];
+		then
+			echo "stop" > /tmp/wportal/status
+			wportalctrl -c
+			rm -f /tmp/wportal/online.lua
+			return
+		fi
+		
+		config_clear
+		config_load network 
+		config_get wan_type wan wan_type ""
+		config_get conn_mode internet conn_mode ""
+		
+		if [[ $wan_type == "pppoe" ]] || [[ $wan_type == "l2tp" ]] || [[ $wan_type == "pptp" ]];
+		then
+			if [ $conn_mode == "demand" ];
+			then
+				cat /tmp/wportal/online.lua | grep -E "(poor_connected|unplugged)" > /dev/null
+				if [ $? -eq 1 ] ;
+				then
+					echo "stop" > /tmp/wportal/status
+					wportalctrl -c
+					rm -f /tmp/wportal/online.lua
+					return
+				fi
+			fi
+		fi
+		
+		local wan_error_enable	#是否加载wan_error
+		
+		config_load wportal
+		config_get wan_error_enable wanerror enable "yes"
+		
+		if [ $wan_error_enable == "no" ] ;
+		then
+			cat /tmp/wportal/status | grep -E "(wan_error)"
+			if [ $? -eq 0 ] ;
+			then
+				echo "stop" > /tmp/wportal/status
+				wportalctrl -c
+				rm -f /tmp/wportal/online.lua
+			fi
+			return 
+		fi
+		
+		wportalctrl -s -u http://$ip/webpages/wan_error.html -i $ip
+		cat /tmp/wportal/status | grep -E "(wan_error)"
+		if [ $? -eq 0 ] ;
+		then
+			return
+		fi
+		wportalctrl -c
+		local domain
+		config_load domain_login
+		config_get domain tp_domain domain ""
+		local lan_ip_addr
+		config_load network
+		config_get lan_ip_addr lan ipaddr $domain
+		wportalctrl -s -u http://$lan_ip_addr/webpages/wan_error.html -i $ip
+		wportalctrl -D -Y
+		
+		local lan_mask
+		config_get lan_mask lan netmask "255.255.255.0"
+		wportalctrl -m $lan_mask
+		
+#		config_load wportal
+#		config_foreach wportalctrl_insert_wan_error_mac_forever
+		echo "wan_error" > /tmp/wportal/status
+	fi
+}
+
+LIST="google.com amazon.com yahoo.com ebay.com wikipedia.org reddit.com netflix.com live.com bing.com linkedin.com tp-link.com"
+
+online_check() {
+	times=`seq 1 $1`
+	for i in times
+	do
+		CHECK_URL=$(echo $LIST | awk 'BEGIN{srand();} {while(n<1){num=int(rand()*NF+1);if(!(num in a)){printf $num" ";a[num]=1;n++}}}')
+		online-test $CHECK_URL
+		if [ $? -eq 1 ] ;
+		then
+			continue;
+		else
+			return 0
+		fi
+	done
+	return 1
+}
+
+online_check_simple(){
+	if [ -e /tmp/online_status ] ;
+    then
+        cat /tmp/online_status | grep -E "(up)"
+    else
+        return 1
+    fi
+}
+
+online_check_thread(){
+	echo 'onlineTestError="poor_connected"' > /tmp/wportal/online.lua
+	wportalctrl_init_wan_error
+	if [ ! -e /tmp/lock/wportal_lock ] ;
+	then
+		touch /tmp/lock/wportal_lock
+		while ( cat /tmp/wportal/online.lua | grep -E "(poor_connected)" > /dev/null ) ;
+		do
+			IFC=wan
+			ubus list | grep -q network.interface.internet && IFC=internet
+			ubus call network.interface.$IFC status | grep '"up"' | grep true
+			if [ $? -ne 0 ] ;
+			then
+				ubus call network.interface.wan status | grep '"linkstate"' | grep true 
+				if [ $? -eq 0 ];
+				then
+					echo 'onlineTestError="disconnected"' > /tmp/wportal/online.lua
+				else
+					echo 'onlineTestError="unplugged"' > /tmp/wportal/online.lua
+				fi
+				break;
+			fi
+			
+			online_check 1
+			if [ $? -eq 0 ]
+			then
+				wportalctrl -c
+				echo "stop" > /tmp/wportal/status
+				break;
+			fi
+			sleep 2
+		done
+		rm -f /tmp/lock/wportal_lock
+	fi
+}
+
+. /etc/functions.sh
+
+#每分钟调用一次，每次拨号失败或者成功调用一次，用以确定应该加载哪个模块（包括是否需要挂载）。
+
+mkdir /tmp/wportal
+
+IFC=wan
+ubus list | grep -q network.interface.internet && IFC=internet
+local connected=$1
+ubus call network.interface.$IFC status | grep '"up"' | grep true
+if [ $? -ne 0 ] ;
+then   #wan口异常
+	ubus call network.interface.wan status | grep '"linkstate"' | grep true 
+	if [ $? -eq 0 ];
+	then
+		echo 'onlineTestError="disconnected"' > /tmp/wportal/online.lua
+	else
+		echo 'onlineTestError="unplugged"' > /tmp/wportal/online.lua
+	fi
+    mark_wan_error
+	#wportalctrl_init_wan_error
+else
+	online_check_simple 
+	if [ $? -eq 1 ] ;
+	then    #wan口异常
+        mark_wan_error
+		#online_check_thread &
+	else
+		#rm -f /tmp/wportal/online.lua
+		cat /tmp/wportal/status | grep -E "(wan_error)"
+		if [ $? -eq 0 ] ;
+		then
+			#wan口异常状态结束，重置状态
+			wportalctrl -c
+			echo "stop" > /tmp/wportal/status
+		fi
+		. /lib/wportal/wportal.sh 
+		#一切正常，检查是否需要加载 upgrade
+		wportalctrl_time_check
+	fi
+fi

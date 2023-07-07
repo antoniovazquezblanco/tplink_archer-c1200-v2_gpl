@@ -1,0 +1,209 @@
+@charset "utf-8";
+/* CSS Document */
+
+/*顶层导航栏*/
+div.top-header div.top-header-wrap h1{
+	width: 190px;
+}
+
+/*顶层图标文案三行*/
+div.top-header div.top-control a.top-control-btn {
+	word-break: break-all;
+	height: 75px;
+	padding-left: 0px\9\0;
+	padding-right: 0px\9\0;
+	width: 49px\9\0;
+	height: 71px\9\0;
+}
+div.top-header div.top-control a.top-control-btn:hover {
+	background: url(../../themes/green/img/ie.hover.png) no-repeat -52px -106px\9;
+}
+
+/*basic status*/
+div.map-form-left,div.map-form-right {
+width:330px;
+}
+input#router_wireless_24g_channel,input#router_wireless_5g_channel{
+	width: 249px;
+}
+div#router_panel div.widget-container div.widget-fieldlabel-wrap.xxs {
+	width: 60px;
+}
+div#router_panel div.map-panel-cnt p.status-textarea-read label.xxs {
+	width: 60px;
+}
+/*printer*/
+input#printer_name{
+	width: 300px;	
+}
+
+/*switch*/
+
+div.switch-button-container span.switch-button-btn-wrap{
+	width: 107px;
+}
+/*div.switch-button-container a.on.switch-button-btn span.switch-button-btn-wrap{
+	width: 115px\9;
+	background: url(../../themes/blue/img/ie-07-05.png) repeat left top\9;
+}
+div.switch-button-container a.off.switch-button-btn span.switch-button-btn-wrap{
+	width: 115px\9;
+	background: url(../../themes/blue/img/ie-07-05.png) repeat left -30px\9;
+}*/
+div#folder2 div.widget-container div.widget-fieldlabel-wrap.m{
+	width: 160px\9;
+}
+
+form#local-setting div.widget-container div.widget-fieldlabel-wrap.m{
+	width: 160px\9;
+}
+/*switch end*/
+span#share-all-tips {
+	width: 320px;
+}
+input#enable_dos + div + div div.tips-content{
+	width: 230px;
+}
+span#txt-mode-tips{
+	width: 340px;
+}
+
+/*step*/
+div.steps p{
+	padding-left: 77px;
+}
+
+/*radio 过长*/
+div.widget-container div.widget-fieldlabel-wrap.l + div.widget-wrap-outer{
+    max-width: 452px;
+}
+div.widget-container div.widget-fieldlabel-wrap.m + div.widget-wrap-outer{
+    max-width: 490px;
+}
+div.widget-container div.widget-fieldlabel-wrap.s + div.widget-wrap-outer{
+    max-width: 520px;
+}
+div.widget-container div.widget-fieldlabel-wrap + div.widget-wrap-outer{
+    max-width: 520px;
+}
+
+/*advanced status wireless clients*/
+div.access-wired-panel h4.status span#status_access_wired_title{
+    display: inline-block;
+    height: 31px;
+    line-height: 31px;
+    height: 29px\9;
+    line-height: 29px\9;
+}
+div.access-wireless-panel h4.status span#status_access_wireless_title{
+    display: inline-block;
+    width: 80px;
+}
+/*div.wireless-panel h4.status span#status_wirless_title{
+    display: inline-block;
+    width: 60px;
+}*/
+/*advanced status wired/wireless*/
+label.label_status_s {
+	display: inline-block;
+	width: 97px;
+	margin-left: 2px;
+}
+
+/*parent control/qos下按钮太长导致IE下的换行*/
+div#own_editor div.widget-container div.widget-fieldlabel-wrap.m {
+    width: 130px;
+}
+input#method_rd + div.widget-fieldlabel-wrap.s {
+    width: 99px;
+}
+div#app_list_all_container div#device_cnt div.widget-container div.widget-fieldlabel-wrap.s {
+    width: 110px;
+}
+div#app_list_all_container div#device_cnt input.text-text.l{
+    width: 130px;
+}
+
+
+/*timesetting 下拉框*/
+input#start_month + div.combobox-wrap-outer div.combobox-wrap input.combobox-text.xs{
+	width: 62px;
+}
+input#end_month + div.combobox-wrap-outer div.combobox-wrap input.combobox-text.xs{
+	width: 62px;
+}
+input#start_week + div.combobox-wrap-outer div.combobox-wrap input.combobox-text.xs{
+	width: 70px;
+}
+input#end_week + div.combobox-wrap-outer div.combobox-wrap input.combobox-text.xs{
+	width: 70px;
+}
+
+/*systemlog logat logevery对齐*/
+div#mail_cnt div.radio-group-wrap ul li > div.widget-wrap{
+	width: 165px;
+}
+div#mail_cnt div.radio-group-wrap ul > li + li > div.widget-wrap{
+    width: 246px;
+}
+div#mail_cnt div.radio-group-wrap ul li div.tips-content {
+	width: 140px;
+}
+
+div#mail_cnt div.radio-group-wrap ul li div.radio-content-wrap {
+	padding-left: 0px;
+	margin-left: 0px;
+}
+
+/*duplex*/
+input#internet_duplex + div.widget-fieldlabel-wrap + div.combobox-wrap-outer div.combobox-wrap input.combobox-text.l {
+	width: 240px;
+}/*******add by yueshenghu********/
+/*system systemtools LED换行*/
+form#led_form  div.combobox-container  div.widget-fieldlabel-wrap{
+	width: 154px;
+}
+
+form#led_form  div.widget-container.checkbox-group-container div.widget-fieldlabel-wrap.m{
+	width: 145px;
+}
+
+/*advance status intertnet */
+div#internet_modem div.widget-container div.widget-fieldlabel-wrap.xs{
+	width: 125px;
+}
+div#internet_modem div.text-container input.text-text.l{
+	width: 150px;
+}
+div#internet_modem p.status-textarea-read label.xs{
+	width: 120px;
+}
+div#internet_modem p.status-textarea-read span{
+	width: 156px;
+	margin-left: 16px;
+}
+
+/*advance status internet 标签长度*/
+div#internet div.widget-container div.widget-fieldlabel-wrap.xs{
+	width: 120px;
+}
+div#internet p.status-textarea-read label.xs{
+	width: 120px;
+}
+
+/*advance status lan */
+div#lan_ipv4 div.widget-container div.widget-fieldlabel-wrap.xs{
+	width: 120px;
+}
+div#lan_ipv4 div.text-container input.text-text.l{
+	width: 150px;
+}
+
+/********************************/
+
+div.top-header div.top-control a.top-control-btn#top-control-account #top-control-account-ctn{
+	top: 90px;
+}
+div.top-header div.top-control a.top-control-btn#top-control-account #connect-area{
+	top: 74px;
+}

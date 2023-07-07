@@ -1,0 +1,17 @@
+#!/bin/sh
+SAMBA="/etc/init.d/samba"
+PROFTPD="/etc/init.d/proftpd"
+MINIDLNAD="/etc/init.d/minidlna"
+
+service_stop() {
+	$SAMBA "stop"
+	$PROFTPD "stop"
+	$MINIDLNAD "stop"
+}
+
+service_stop && usbshare umount all
+cp /etc/rc.d/K90network /tmp/
+rm -f /etc/rc.d/K*
+cp /tmp/K90network /etc/rc.d
+kill -SIGKILL $(ps | grep netifd | grep -o -E '^ *[0-9]+' | sort -r | tail -n 1 | head -n 1)
+kill -SIGTERM $(ps | grep pppd | grep -o -E '^ *[0-9]+' | sort -r | tail -n 2 | head -n 1)
